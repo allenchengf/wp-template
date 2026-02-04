@@ -1,0 +1,45 @@
+# 環境變數檔案
+.env
+
+# WordPress 資料
+wp_data/
+db_data/
+
+# 日誌檔案
+*.log
+logs/
+
+# 作業系統檔案
+.DS_Store
+Thumbs.db
+
+# IDE 檔案
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# 臨時檔案
+tmp/
+temp/
+*.tmp
+
+# Docker 相關
+docker-compose.override.yml
+
+# 測試覆蓋率報告
+coverage/
+.nyc_output/
+
+# Node modules (如果使用 Node.js 測試工具)
+node_modules/
+
+# Python 相關 (如果使用 Python 測試工具)
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+venv/
+env/

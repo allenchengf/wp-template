@@ -324,6 +324,51 @@ sudo docker compose ps
 
 ---
 
+## 四之二、讓一般使用者不需 sudo 使用 git（主流設定）
+
+`/opt/wp-template` 若以 root 建立或複製，Git 會因「目錄擁有者與目前使用者不符」拒絕執行（`dubious ownership`）。主流做法為：**將目錄擁有權交給會操作 git 的使用者**，並讓該使用者將此目錄加入 **safe.directory**。
+
+### 單一使用者（例如 allenchen）
+
+**1. 將 repo 擁有權改為該使用者（root 執行一次）**
+
+```bash
+# 將 YOUR_USER 改為實際使用者名稱（與 whoami 一致）
+sudo chown -R allenchen:allenchen /opt/wp-template
+```
+
+**2. 以該使用者身分加入 safe.directory（該使用者執行一次）**
+
+```bash
+git config --global --add safe.directory /opt/wp-template
+```
+
+之後該使用者即可在 `/opt/wp-template` 直接執行 `git status`、`git pull` 等，無需 sudo。root 仍可用 `sudo docker compose` 操作容器；檔案權限 644/755 下 root 可讀，不影響 Docker。
+
+### 多使用者共用（選用）
+
+若有多位使用者需對同一 repo 執行 git：
+
+```bash
+# 建立共用群組並將使用者加入
+sudo groupadd wp-deploy
+sudo usermod -aG wp-deploy allenchen
+# 若有其他使用者：sudo usermod -aG wp-deploy 其他使用者名
+
+# 目錄擁有者改為 主要使用者:群組，並讓群組可讀寫、目錄 setgid
+sudo chown -R allenchen:wp-deploy /opt/wp-template
+sudo chmod -R g+rwX /opt/wp-template
+sudo find /opt/wp-template -type d -exec chmod g+s {} \;
+```
+
+每位使用者各自執行一次：
+
+```bash
+git config --global --add safe.directory /opt/wp-template
+```
+
+---
+
 ## 五、在 VM 上安裝 Docker 與 Docker Compose（未用 startup-script 時）
 
 若建立 VM 時**沒有**使用上面的 `startup-script`，需手動在 VM 內安裝 Docker。先以 gcloud SSH 進入 VM，再執行：

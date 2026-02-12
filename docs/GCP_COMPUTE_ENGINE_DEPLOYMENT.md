@@ -171,6 +171,36 @@ gcloud compute ssh $INSTANCE_NAME --zone=$ZONE --project=$PROJECT_ID
 
 連線後終端機提示會變成 `username@instance-name:~$`，表示已進入 VM。
 
+### 用本機 id_rsa 直接 SSH（不透過 gcloud）
+
+若希望在本機用一般 `ssh user@VM_IP` 連線（不必每次打 gcloud），可把本機公鑰加到 VM 的 SSH 中繼資料。**在本機**執行（使用者名稱請改成你 gcloud 連線時顯示的，例如 `allenchen`）：
+
+```bash
+# 變數（請替換使用者名稱；若與 gcloud 連線時 @ 前相同即可）
+export GCP_USER="allenchen"
+export INSTANCE_NAME="wordpress-vm"
+export ZONE="asia-east1-b"
+export PROJECT_ID="ubiqservices"
+
+# 把本機 id_rsa 公鑰加到「此 VM」的 SSH 中繼資料（不影響專案其他 VM）
+gcloud compute instances add-metadata $INSTANCE_NAME \
+  --zone=$ZONE \
+  --project=$PROJECT_ID \
+  --metadata=ssh-keys="$GCP_USER:$(cat ~/.ssh/id_rsa.pub)"
+```
+
+完成後即可直接連線（將 IP 換成你的 VM 外部 IP）：
+
+```bash
+ssh allenchen@34.81.156.56
+```
+
+若本機用的不是 `~/.ssh/id_rsa.pub`，請改成實際公鑰路徑，例如：
+
+```bash
+--metadata=ssh-keys="$GCP_USER:$(cat ~/.ssh/id_ed25519.pub)"
+```
+
 ### （可選）保留靜態外部 IP
 
 ```bash

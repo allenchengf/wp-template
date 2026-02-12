@@ -605,6 +605,10 @@ gcloud compute firewall-rules create allow-http-https \
 
 DNS 已指到 VM、且 **http:// 你的網域** 可連線後，在 VM 上依序執行以下步驟。專案已內建 Nginx 443 設定（`config/nginx/default-ssl.conf`）與 `docker-compose` 的 443 埠、憑證掛載。
 
+**一鍵自動執行（本機已登入 gcloud 時）**：在專案根目錄執行  
+`CERTBOT_EMAIL=你的信箱@example.com ./scripts/setup-letsencrypt-gcloud.sh`  
+腳本會上傳設定、在 VM 安裝 certbot 並取得憑證、啟動 Nginx、啟用 HTTP→HTTPS 導向並做簡單測試。完成後可再執行 `./scripts/verify-https.sh` 驗證。
+
 **步驟 1：在 VM 上安裝 Certbot 並取得憑證**
 
 ```bash

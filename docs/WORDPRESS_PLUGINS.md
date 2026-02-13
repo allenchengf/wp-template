@@ -81,10 +81,10 @@
 
 ```bash
 cd /opt/wp-template
-./scripts/install-wp-plugins.sh
+bash scripts/install-wp-plugins.sh
 ```
 
-- 需已設定 `.env`（含 `MYSQL_PASSWORD` 等），且 `docker compose up -d` 已啟動 wordpress、db。
+- 請用 **bash** 執行（勿用 `sh`）。需已設定 `.env`（含 `MYSQL_PASSWORD` 等），且 `docker compose up -d` 已啟動 wordpress、db。
 - 腳本會以 WP-CLI 容器掛載同一 `wp_data` 並安裝外掛；安裝完成後請至後台「外掛」啟用並設定。
 - 若專案目錄名稱非 `wp-template`，可先設定：`export COMPOSE_PROJECT_NAME=你的專案目錄名` 再執行腳本。
 

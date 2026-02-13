@@ -1,7 +1,13 @@
 #!/usr/bin/env bash
 # 依 docs/WORDPRESS_PLUGINS.md 清單，使用 WP-CLI 批次安裝 WordPress 外掛
-# 在 VM 上執行：cd /opt/wp-template && ./scripts/install-wp-plugins.sh
+# 在 VM 上執行：cd /opt/wp-template && bash scripts/install-wp-plugins.sh
+# 或：./scripts/install-wp-plugins.sh（勿用 sh 執行）
 # 需先啟動 docker compose（wordpress、db 在跑），且 .env 已設定
+
+# 若被 sh 呼叫則改用 bash 重新執行（本腳本需 bash）
+if [ -z "$BASH" ] || [ -n "$ZSH_VERSION" ]; then
+  exec bash "$0" "$@"
+fi
 
 set -e
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
@@ -16,14 +22,19 @@ NETWORK_NAME="${COMPOSE_PROJECT_NAME}_wordpress-network"
 # 載入 .env（若存在）
 if [ -f .env ]; then
   set -a
+  # shellcheck source=/dev/null
   source .env
   set +a
 fi
 
-# 必要變數
+# 必要變數（.env 內需有 MYSQL_PASSWORD）
+if [ -z "${MYSQL_PASSWORD}" ]; then
+  echo "錯誤：請在 $REPO_ROOT/.env 設定 MYSQL_PASSWORD"
+  exit 1
+fi
 export WORDPRESS_DB_HOST="${WORDPRESS_DB_HOST:-db}"
 export WORDPRESS_DB_USER="${MYSQL_USER:-wordpress}"
-export WORDPRESS_DB_PASSWORD="${MYSQL_PASSWORD:?請在 .env 設定 MYSQL_PASSWORD}"
+export WORDPRESS_DB_PASSWORD="${MYSQL_PASSWORD}"
 export WORDPRESS_DB_NAME="${MYSQL_DATABASE:-wordpress}"
 
 # 對應 docs/WORDPRESS_PLUGINS.md 的 WordPress.org 外掛 slug（不含「待選」）

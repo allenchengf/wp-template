@@ -75,6 +75,21 @@
 
 ---
 
+## 批次安裝（VM 上使用 WP-CLI 腳本）
+
+專案內提供腳本，可在已啟動 Docker Compose 的 VM 上一次安裝上述外掛（不含「待選」項目）：
+
+```bash
+cd /opt/wp-template
+./scripts/install-wp-plugins.sh
+```
+
+- 需已設定 `.env`（含 `MYSQL_PASSWORD` 等），且 `docker compose up -d` 已啟動 wordpress、db。
+- 腳本會以 WP-CLI 容器掛載同一 `wp_data` 並安裝外掛；安裝完成後請至後台「外掛」啟用並設定。
+- 若專案目錄名稱非 `wp-template`，可先設定：`export COMPOSE_PROJECT_NAME=你的專案目錄名` 再執行腳本。
+
+---
+
 ## 參考
 
 - 外掛來源以 [WordPress.org Plugin Directory](https://wordpress.org/plugins/) 為準。

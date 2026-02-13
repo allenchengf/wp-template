@@ -73,18 +73,26 @@ wp-template/
 ├── config/                     # 配置檔案目錄
 │   ├── nginx/                 # Nginx 配置
 │   │   ├── nginx.conf
-│   │   └── default.conf
+│   │   ├── default.conf
+│   │   ├── default-ssl.conf
+│   │   └── default-80-redirect.conf
 │   ├── php/                   # PHP 配置
 │   │   └── php.ini
 │   └── mysql/                 # MySQL 配置
 │       └── init/
 │           └── 01-init.sql
 ├── docs/                       # 文檔目錄
+│   ├── GCP_COMPUTE_ENGINE_DEPLOYMENT.md
+│   ├── WORDPRESS_PLUGINS.md
 │   └── SDD/                   # SDD 文檔
 │       ├── 01-brief.md
 │       ├── 02-plan.md
 │       ├── 03-spec.md
 │       └── 04-tasks.md
+├── scripts/                    # 自動化腳本
+│   ├── setup-letsencrypt-gcloud.sh
+│   ├── verify-https.sh
+│   └── install-wp-plugins.sh
 └── tests/                      # 測試目錄
     ├── unit/                  # Unit Tests
     │   └── test_containers.py
@@ -203,6 +211,18 @@ docker-compose exec db mysqldump -u wordpress -p wordpress > backup.sql
 docker-compose exec -T db mysql -u wordpress -p wordpress < backup.sql
 ```
 
+### 批次安裝 WordPress 外掛（VM）
+
+```bash
+cd /opt/wp-template
+bash scripts/install-wp-plugins.sh
+```
+
+說明：
+- 請使用 `bash`（勿用 `sh`）
+- 需先完成 `docker compose up -d` 且 `.env` 已設定 `MYSQL_PASSWORD`
+- 清單來源與說明見 `docs/WORDPRESS_PLUGINS.md`
+
 ## 🔐 安全建議
 
 1. **更改預設密碼**：務必在 `.env` 檔案中設置強密碼
@@ -216,6 +236,7 @@ docker-compose exec -T db mysql -u wordpress -p wordpress < backup.sql
 | 服務 | 內部端口 | 外部端口 | 說明 |
 |------|----------|----------|------|
 | Nginx | 80 | 80 | HTTP 服務 |
+| Nginx | 443 | 443 | HTTPS 服務（Let's Encrypt） |
 | MySQL | 3306 | - | 資料庫（僅內部訪問） |
 | WordPress | 9000 | - | PHP-FPM（僅內部訪問） |
 
@@ -271,6 +292,8 @@ docker-compose exec wordpress chown -R www-data:www-data /var/www/html
 - [專案計畫 (Plan)](docs/SDD/02-plan.md)
 - [技術規格 (Spec)](docs/SDD/03-spec.md)
 - [任務清單 (Tasks)](docs/SDD/04-tasks.md)
+- [GCP 部署與 HTTPS 設定](docs/GCP_COMPUTE_ENGINE_DEPLOYMENT.md)
+- [WordPress 外掛清單與批次安裝](docs/WORDPRESS_PLUGINS.md)
 
 ## 🔄 版本資訊
 

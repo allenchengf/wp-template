@@ -367,39 +367,6 @@ sudo find /opt/wp-template -type d -exec chmod g+s {} \;
 git config --global --add safe.directory /opt/wp-template
 ```
 
----
-
-## 五、在 VM 上安裝 Docker 與 Docker Compose（未用 startup-script 時）
-
-若建立 VM 時**沒有**使用上面的 `startup-script`，需手動在 VM 內安裝 Docker。先以 gcloud SSH 進入 VM，再執行：
-
-```bash
-# 在 VM 內執行
-sudo apt-get update && sudo apt-get upgrade -y
-sudo apt-get install -y ca-certificates curl gnupg lsb-release
-
-sudo mkdir -p /etc/apt/keyrings
-curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmor -o /etc/apt/keyrings/docker.gpg
-
-echo \
-  "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.gpg] https://download.docker.com/linux/ubuntu \
-  $(lsb_release -cs) stable" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
-
-sudo apt-get update
-sudo apt-get install -y docker-ce docker-ce-cli containerd.io docker-compose-plugin
-sudo systemctl enable docker && sudo systemctl start docker
-sudo usermod -aG docker $USER
-```
-
-登出 SSH 再登入後，可免 sudo 執行 `docker` / `docker compose`。驗證：
-
-```bash
-docker --version
-docker compose version
-```
-
----
-
 ## 五、在 VM 上安裝 Docker 與 Docker Compose
 
 以下在 **VM 的 SSH 終端機** 中執行（Ubuntu 22.04）。
@@ -694,7 +661,7 @@ gcloud compute ssh wordpress-vm --zone=asia-east1-b --project=ubiqservices
 sudo apt-get update && sudo apt-get install -y certbot
 cd /opt/wp-template
 sudo docker compose stop nginx
-sudo certbot certonly --standalone -d www.ubiqservices.net -d ubiqservices.net --email 你的信箱@example.com --agree-tos --non-interactive
+sudo certbot certonly --standalone -d www.ubiqservices.net --email 你的信箱@example.com --agree-tos --non-interactive
 ```
 
 **步驟 2：把專案最新檔同步到 VM（含 docker-compose 與 default-ssl.conf）**
@@ -770,7 +737,7 @@ sudo crontab -e
 
 ```bash
 # 進入專案目錄
-cd ~/wp-template
+cd /opt/wp-template
 
 # 查看狀態
 sudo docker compose ps

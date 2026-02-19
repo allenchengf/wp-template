@@ -276,6 +276,45 @@ docker-compose exec wordpress env | grep WORDPRESS
 docker-compose exec db mysql -u wordpress -p
 ```
 
+### 無法登入後台（reCAPTCHA 驗證失敗）
+
+若啟用 `reCaptcha by BestWebSoft` 後出現登入失敗或忘記密碼頁被擋住，通常是金鑰版本或網域設定不一致：
+
+1. 確認外掛版本與 Google reCAPTCHA 金鑰版本一致  
+   - 外掛選 `Version 2` 時，Google 後台需建立 **reCAPTCHA v2 Checkbox** 金鑰
+2. 網域需同時包含：`ubiqservices.net` 與 `www.ubiqservices.net`
+3. 先只啟用 `Login form`，待測試成功再啟用其他表單
+
+若已被鎖住，可在 VM 先緊急停用外掛：
+
+```bash
+cd /opt/wp-template
+set -a && source .env && set +a
+sudo docker run --rm \
+  -v wp-template_wp_data:/var/www/html \
+  --network wp-template_wordpress-network \
+  -e WORDPRESS_DB_HOST=db \
+  -e WORDPRESS_DB_USER=$MYSQL_USER \
+  -e WORDPRESS_DB_PASSWORD=$MYSQL_PASSWORD \
+  -e WORDPRESS_DB_NAME=$MYSQL_DATABASE \
+  wordpress:cli plugin deactivate google-captcha --allow-root
+```
+
+如需重設管理員密碼（範例使用 `allen`）：
+
+```bash
+cd /opt/wp-template
+set -a && source .env && set +a
+sudo docker run --rm \
+  -v wp-template_wp_data:/var/www/html \
+  --network wp-template_wordpress-network \
+  -e WORDPRESS_DB_HOST=db \
+  -e WORDPRESS_DB_USER=$MYSQL_USER \
+  -e WORDPRESS_DB_PASSWORD=$MYSQL_PASSWORD \
+  -e WORDPRESS_DB_NAME=$MYSQL_DATABASE \
+  wordpress:cli user update allen --user_pass="請改成安全臨時密碼" --allow-root
+```
+
 ### 檔案權限問題
 
 如果遇到檔案權限問題，可以執行：
